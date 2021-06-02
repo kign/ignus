@@ -10,8 +10,8 @@ handlers:
   secure: always
 
 env_variables:
-  GOOGLE_APPLICATION_CREDENTIALS: ign-us-google-app-auth.json
+  GOOGLE_APPLICATION_CREDENTIALS: secrets/firestore-auth.json
 
-  MS_CLIENT_ID: MS_CLIENT_ID
-  MS_CLIENT_SECRET: MS_CLIENT_SECRET
-  GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
+  MS_CLIENT_ID: <hidden>
+  MS_CLIENT_SECRET: <hidden>
+  GOOGLE_CLIENT_ID: <hidden>

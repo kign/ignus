@@ -1,7 +1,7 @@
 __pycache__/
 /venv
-/.DS_Store
+.DS_Store
 /web/static
-/web/ign-us-google-app-auth.json
 /web/t/lib_*.html
 /.idea
+/web/secrets

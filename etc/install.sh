@@ -2,14 +2,33 @@
 
 TOP="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && cd .. && pwd)"
 
-lib_git="${HOME}/git/inet-lab"
-. "${lib_git}/shared/install.inc"
+. "${TOP}/external/install.inc"
 
-# Verify installation
-test_availability python3 svgtoimg
+# Verify required utilities
+test_availability python3
 
 # exit on error
 set -e
+
+if type svgtoimg >/dev/null 2>&1 ; then
+  cd "$TOP"
+  ci=cached_images
+  [ -e $ci ] || mkdir $ci
+  cd $ci
+  printf "\n${LIGHT_CYAN}Updating cached images${NC}\n"
+  echo "Current directory: $(pwd)"
+
+  tmpf=$(mktemp /tmp/image.svg.XXXXX)
+  sed -E 's/(fill|stroke): (darkblue|rgb\(0, 0, 139\))/\1: blue/g' ../assets/redirect-www.svg > $tmpf
+  svgtoimg -g 128x128 $tmpf favicon.png
+  sed -E 's/(fill|stroke): (darkblue|rgb\(0, 0, 139\))/\1: red/g' ../assets/redirect-www.svg > $tmpf
+  svgtoimg -g 128x128 $tmpf favicon_dbg.png
+  svgtoimg -g 32x32 ../assets/alien.svg guest.png
+  rm "$tmpf"
+else
+  printf "${LIGHT_RED}svgtoimg not available, using cached images\n${NC}"
+fi
+
 
 cd "$TOP/web"
 [ -e static ] || mkdir static
@@ -17,22 +36,19 @@ cd static
 printf "\n${LIGHT_CYAN}Initializing static assets${NC}\n"
 echo "Current directory: $(pwd)"
 
-# One possible way to initialize
-#if [ -d "static" ]; then
-#    echo 'Directory "static" already exists, skipping initialization'
-#else
-#    echo "mkdir static"
-#    mkdir static
-#    echo cd static
-#    cd static
-#    echo ln -s ../static_assets/* .
-#    ln -s ../static_assets/* .
-#fi
+cp ../../assets/www-redirect.png logo.png
+echo "www-redirect.png => logo.png"
+cp ../../assets/www-redirect-red.png logo-dbg.png
+echo "www-redirect-red.png => logo-dbg.png"
 
-svgtoimg -g 128x128 ../../assets/favicon.svg favicon.png
-tmpf=$(mktemp /tmp/image.svg.XXXXX)
-sed 's/fill: black/fill: red/g' ../../assets/favicon.svg > $tmpf
-svgtoimg -g 128x128 $tmpf favicon_dbg.png
+for f in favicon.png favicon_dbg.png guest.png; do
+  if [ -e $f ]; then
+    echo "File $f exists"
+  else
+    echo "ln -s ../../$ci/$f ."
+    ln -s ../../$ci/$f .
+  fi
+done
 
 cd "$TOP"
 printf "\n${LIGHT_CYAN}Installing python virtual environment${NC}\n"
@@ -44,7 +60,6 @@ venv=venv
 ## python3 -m venv venv
 ## venv/bin/python3 -m pip install --upgrade pip
 ## venv/bin/python3 -m pip install flask python-dateutil pyyaml msal google-auth ua-parser user-agents emoji-country-flag google-cloud-firestore inetlab
-## venv/bin/python3 -m pip freeze > web/requirements.txt
 #
 # And then run this command:
 # venv/bin/python3 -m pip freeze > web/requirements.txt
@@ -60,7 +75,7 @@ venv=venv
 #
 #    * msal, google-auth: MS and Google authentication libs
 #
-#    * inetlab:      My own library
+#    * inetlab:      My own utility library
 #
 #    * ua-parser, user-agents, emoji-country-flag:  User Agent parsing/presentation
 #
@@ -80,22 +95,28 @@ fi
 cd "$TOP/web/t"
 printf "\n${LIGHT_CYAN}Linking standard Jinja templates${NC}\n"
 echo "Current directory: $(pwd)"
-echo "Linking from: $lib_git/shared/jinja"
+echo "Linking from: $TOP/external"
 for pf in "auth_error.html" "login.html"; do
   t="lib_${pf}"
   if [ -e $t ]; then
     echo >&2 -e "${LIGHT_RED}File $t exists, skipping${NC}"
   else
-    ln -s $lib_git/shared/jinja/$pf "$t"
+    ln -s ${TOP}/external/$pf "$t"
     echo "$pf => $t"
   fi
 done
 
 cd "$TOP/web"
-gac_src="ign-us-google-app-auth.json"
+gac_src="secrets/firestore-auth.json"
 if ! [ -e "$gac_src" ]; then
   printf "\n${LIGHT_RED}You are missing google application credentials file${NC}\n"
   printf "You need file ${LIGHT_CYAN}$gac_src${NC} to access Google Firestore\n\n"
+fi
+
+priv_txt="secrets/priv.txt"
+if ! [ -e "$priv_txt" ]; then
+  printf "\nCreating empty ${LIGHT_CYAN}${priv_txt}${NC} (you may wish to edit as needed)\n"
+  touch "${priv_txt}"
 fi
 
 echo ""

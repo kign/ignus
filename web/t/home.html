@@ -1,25 +1,47 @@
-<!DOCTYPE HTML>
-<html lang="en" translate="no">
-<head>
-    <title>My Application</title>
+{% extends 'lib_login.html' %}
+
+{% block header %}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon_dbg.png') if lib.is_dev() else url_for('static', filename='favicon.png') }}" type="image/x-icon">
     <link rel="icon" href="{{ 'favicon_dbg.png' if lib.is_dev() else 'favicon.png' }}" type="image/x-icon">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="google" content="notranslate">
-    <meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&display=swap');
+div.intro {
+    font-family: 'Playfair Display', serif;
+    margin-left: 2ex;
+    font-size: 16pt;
+}
+hr.intro {
+    overflow: visible; /* For IE */
+    padding: 0;
+    border: none;
+    border-top: medium double #333;
+    color: #333;
+    text-align: center;
+    width: 99%;
+}
+hr.intro:after {
+    content: "★★★";
+    font-family: serif;
+    display: inline-block;
+    position: relative;
+    top: -1.3em;
+    font-size: 0.75em;
+    padding: 0 0.55em;
+    background: white;
+}
+</style>
+{% endblock %}
 
-    {# custom styles #}
-    <link rel="stylesheet" href="{{ url_for('static', filename='pro-mgr.css') }}">
-</head>
-<body>
-{% if user %}
-    <p>
-    Logged in as {{ user.email }} &#xFF5C; <a href="{{ lib.create_logout_url() }}">Logout</a>
-    </p>
+{% block content %}
+<div class="intro">
+    <p>Hello! This is an experimental URL shortener service.</p>
+    <p>It is intended for educational purposes, but it is nevertheless fully functional.</p>
+    <p>To begin, please login with one of the supported providers below</p>
+    <hr class="intro">
+</div>
+{% if maintenance %}
+<div style="color: Crimson; font-size: 17pt; margin-bottom: 25px;">
+Site is under maintenance. Redirects will work, but no other operation is currently permitted.
+</div>
 {% endif %}
-
-<p>
-    Hello, {{ name }}!
-</p>
-</body>
-</html>
+{% endblock %}

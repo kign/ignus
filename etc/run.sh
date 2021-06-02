@@ -15,7 +15,7 @@ cd $(dirname $0)
 cd ../web
 
 venv=venv
-app=ignus-app.py
+app=url-shortener-app.py
 printf "\nCurrent directory: ${LIGHT_CYAN}$(pwd)${NC}\n"
 
 if [[ $1 == "flask" ]]; then

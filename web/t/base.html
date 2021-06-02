@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html lang="en" translate="no">
+<head>
+    <title>{% if lib.is_dev() %}[ign.us|dev]{% else %}ign.is{% endif %}: {{ title[0] }}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon_dbg.png' if lib.is_dev() else 'favicon.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon_dbg.png' if lib.is_dev() else 'favicon.png') }}" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google" content="notranslate">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ign-us.css') }}">
+    {%- block header %}{% endblock -%}
+</head>
+<body>
+
+<nav class="navbar navbar-expand navbar-light" style="background-color: #F1F1F1;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='logo-dbg.png' if lib.is_dev() else 'logo.png') }}" alt="" width="32" height="32">
+        </a>
+        <span class="navbar-text">
+            {{ title[-1] }}
+        </span>
+        {%- block navbar %}{% endblock -%}
+        <span class="navbar-text me-auto">
+            &nbsp;
+        </span>
+        <ul class="navbar-nav">
+            {% if not about_page %}
+            <li class="nav-item" style="font-style: italic">
+                <a class="nav-link" aria-current="page" href="{{ url_for('about') }}">About...</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="userpic-dd" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{{ user.picture or url_for('static', filename='guest.png') }}" width="32" height="32" alt="User picture">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    {% if user %}
+                    <li><a class="dropdown-item disabled" href="#">{{ user.email }}</a></li>
+                    {% if user.priv %}
+                    <li><a class="dropdown-item disabled" style="font-style: italic; color: lightcoral" href="#">Privileged</a></li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ lib.create_logout_url() }}">Logout</a></li>
+                    {% else %}
+                    <li><a class="dropdown-item disabled" href="#" style="font-style: italic">Not logged in</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+{%- block content %}{% endblock -%}
+
+<footer class="mx-2 my-5 border-top">
+    <div style="font-size: small">
+        See source code at <A style="text-decoration: inherit;" href="https://github.com/kign/url-shortener">https://github.com/kign/url-shortener</A>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+</body>
+</html>

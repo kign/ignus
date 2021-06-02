@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+<p>{{ content|safe }}</p>
+<hr>
+<p>Reloading page in <span id="counter">{{ delay }}</span> seconds...</p>
+<p><A href="{{ url }}">Go there now</A> &#124; <A href="javascript:window.clearInterval(reload_t)">Stop countdown</A></p>
+<script>
+let reload_counter = {{ delay }};
+
+function update_counter () {
+  reload_counter --;
+  document.getElementById('counter').innerHTML = reload_counter.toString ();
+  if (reload_counter === 0)
+       window.location.href = "{{ url }}";
+}
+const reload_t = window.setInterval (update_counter, 1000);
+</script>
+</body>
+</html>

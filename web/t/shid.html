@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<script>
+$(function () {
+    $('td[title]').on('click', function () {
+        alert($(this).attr('title'));
+    });
+});
+</script>
+<style>
+tr.internal {
+    font-style: italic;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    All views for {{ shid }}
+
+<table class="main table table-hover">
+<thead>
+    <tr>
+        <th>Time</th>
+        <th>Geo</th>
+        <th>Browser</th>
+        <th>OS</th>
+    </tr>
+</thead>
+<tbody>
+{% for _v in visits.stream() %}
+    {% set v=_v.to_dict() %}
+    {% set browser,os = disp_ua(v.user_agent) %}
+    <tr class="{% if v.internal %}internal{% endif %}">
+        <td>{{ show_time(_v.id, 'abs') }}</td>
+        {% if v.host.startswith('localhost:') %}
+        <td>local</td>
+        {% else %}
+        <td title="{{ v.x_appengine_user_ip }}">{{ flag(v.x_appengine_country or 'XX') }}{{ v.x_appengine_country or '??'}}/{{ v.x_appengine_region or '??'}}/{{ v.x_appengine_city or '??'}}</td>
+        {% endif %}
+        <td title="{{ v.user_agent }}">{{ "{x.family} {x.version_string}".format(x=browser) }}</td>
+        <td title="{{ v.user_agent }}">{{ "{x.family} {x.version_string}".format(x=os) }}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+
+<hr>
+<div class="accordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                Edit panel
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+             data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <form method="post" action="{{ url_for('shid_remove') }}">
+                    <input type="hidden" name="shid" value="{{ shid }}">
+                    <button type="submit" class="btn btn-danger">Remove shortcut</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

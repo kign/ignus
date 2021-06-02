@@ -14,7 +14,7 @@ googleapis-common-protos==1.53.0
 grpcio==1.38.0
 idna==2.10
 importlib-metadata==4.3.1
-inetlab==0.1.2
+inetlab==0.1.3
 itsdangerous==2.0.1
 Jinja2==3.0.1
 MarkupSafe==2.0.1

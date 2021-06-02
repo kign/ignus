@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h2>Login Failure</h2>
+    <dl>
+      <dt>{{ result.error }}</dt>
+      <dd>{{ result.error_description }}</dd>
+    </dl>
+    <hr>
+    <a href="{{ url_for('home') }}">Homepage</a>
+</body>
+</html>

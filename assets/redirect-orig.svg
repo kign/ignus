@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <style bx:fonts="B612 Mono">@font-face { font-family: "B612 Mono"; font-style: normal; font-weight: 400; font-stretch: normal; font-unicode-range: U+0-10FFFF; font-variant: normal; font-feature-settings: normal; src: url(https://fonts.gstatic.com/s/b612mono/v5/kmK_Zq85QVWbN1eW6lJl1wTcquRTtg.ttf); }@font-face { font-family: "B612 Mono"; font-style: normal; font-weight: 700; font-stretch: normal; font-unicode-range: U+0-10FFFF; font-variant: normal; font-feature-settings: normal; src: url(https://fonts.gstatic.com/s/b612mono/v5/kmK6Zq85QVWbN1eW6lJdayv4os9Pv7JGSg.ttf); }@font-face { font-family: "B612 Mono"; font-style: italic; font-weight: 400; font-stretch: normal; font-unicode-range: U+0-10FFFF; font-variant: normal; font-feature-settings: normal; src: url(https://fonts.gstatic.com/s/b612mono/v5/kmK5Zq85QVWbN1eW6lJV1Q7YiOFDtqtf.ttf); }@font-face { font-family: "B612 Mono"; font-style: italic; font-weight: 700; font-stretch: normal; font-unicode-range: U+0-10FFFF; font-variant: normal; font-feature-settings: normal; src: url(https://fonts.gstatic.com/s/b612mono/v5/kmKkZq85QVWbN1eW6lJV1TZkp8VLnbdWSg4x.ttf); }</style>
+  </defs>
+  <line style="stroke: darkblue;" x1="25" y1="120" x2="400" y2="120" stroke-width="40"/>
+  <line style="stroke: darkblue;" x1="25" y1="392" x2="400" y2="392" stroke-width="40"/>
+  <line style="stroke: darkblue;" x1="341" y1="20" x2="471" y2="256" stroke-width="40"/>
+  <line style="stroke: darkblue;" x1="471" y1="256" x2="341" y2="492" stroke-width="40"/>
+  <circle style="fill: darkblue;" cx="471" cy="256" r="20"/>
+  <circle style="fill: darkblue;" cx="25" cy="120" r="20"/>
+  <circle style="fill: darkblue;" cx="25" cy="392" r="20"/>
+  <circle style="fill: darkblue;" cx="341" cy="20" r="20"/>
+  <circle style="fill: darkblue;" cx="341" cy="492" r="20"/>
+  <polygon style="fill: darkblue;" points="5 392 390 392 471 256 389 120 5 120"/>
+  <text style="fill: white; font-family: &quot;B612 Mono&quot;; font-size: 36px; white-space: pre;" x="45.981" y="180.328" transform="matrix(6.169713, 0, 0, 8.588724, -277.862183, -1170.078979)">WWW</text>
+</svg>

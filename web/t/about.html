@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<style>
+p {
+    margin: 10pt;
+}
+a.link {
+   text-decoration: inherit;
+}
+a.link:hover {
+   text-decoration: underline;
+}
+a.email {
+    font-family: 'Consolas', 'Monaco', 'Bitstream Vera Sans Mono', monospace;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<p>
+    This is an <b><i>experimental</i></b> URL shortener service.
+    It is intended for demonstration and educational purposes, but it is nevertheless fully functional.
+    To use it, you must login with one of the supported identity partners.
+    I do not guarantee availability of the service, and any excessive use will be throttled.
+</p>
+<p>
+    <A class="link" href="https://github.com/kign/url-shortener">Source code for this project</A> is available under <A class="link" href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html">GPL 2.0 license</A>.
+        You can use GitHub page for public <A class="link" href="https://github.com/kign/url-shortener/issues">bug reporting</A> or email
+    <A class="link email" href="mailto:ignus@inet-lab.net">ignus@inet-lab.net</A> to send a private message to the administration.
+</p>
+
+<p style="color: Crimson; font-size: 17pt; margin-bottom: 25px;">
+    Site is under maintenance. Redirects will work, but no other operation is currently permitted.
+</p>
+
+{% if user.priv %}
+<hr>
+<p>User information</p>
+<table>
+<tr><th>Property</th><th>Value</th></tr>
+<tr><td>provider</td><td>{{ user.provider }}</td></tr>
+<tr><td>first_name</td><td>{{ user.first_name }}</td></tr>
+<tr><td>last_name</td><td>{{ user.last_name }}</td></tr>
+<tr><td>email</td><td>{{ user.email }}</td></tr>
+<tr><td>exp</td><td>{{ user.exp }}</td></tr>
+<tr><td>uid</td><td>{{ user.uid }}</td></tr>
+<tr><td>picture</td><td>{{ user.picture }}</td></tr>
+</table>
+
+<hr>
+<p>Environment</p>
+<table>
+<tr><th>Name</th><th>Value</th></tr>
+{% for name, val in environ.items() %}
+<tr><td>{{ name }}</td><td>{{ val }}</td></tr>
+{% endfor %}
+</table>
+{% endif %}
+{% endblock %}

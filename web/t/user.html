@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% set default_expire = namespace(days=183, text="6 months") %}
+
+{% block header %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{#<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">#}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+table.urls-list td {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+a {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+</style>
+<script>
+const shid_cache = new Map();
+$(function () {
+    {% if user.priv %}
+    $("input[name='shid']").on('blur', function () {
+        const $elm = $(this);
+        const val = $elm.val().trim();
+        $elm.removeClass('is-invalid');
+        $elm.removeClass('is-valid');
+        if (val === '')
+            return;
+
+        if (shid_cache.has(val)) {
+            $elm.addClass(shid_cache.get(val)? 'is-valid' : 'is-invalid');
+            console.log("Using cached value for", val, ':', shid_cache.get(val));
+            return;
+        }
+
+        $.getJSON("{{ url_for('ajax_verify_shid') }}", {
+            shid: val
+        }).done(function (data) {
+            console.log("[Verify] Received", data);
+            if (data.error)
+                alert("ERROR\n\n" + data.error);
+            else {
+                $elm.addClass(data.is_valid ? 'is-valid' : 'is-invalid');
+                shid_cache.set(val, data.is_valid);
+                console.log("Setting cached value for", val, ':', data.is_valid);
+
+            }
+        }).fail(function (err) {
+            alert("AJAX failed!!!\n\n" + err.statusText + "\n\n" + err.responseText);
+        });
+    });
+    {% endif %}
+
+    $("input[name='url']").on('blur', function (evt) {
+        console.log("url#change, evt.relatedTarget = ", evt.relatedTarget);
+        const val = $(this).val().trim();
+        $(this).removeClass('is-invalid');
+        $(this).removeClass('is-valid');
+        {# https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url #}
+        const re_url = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
+        $(this).addClass(val.match(re_url) ? 'is-valid' : 'is-invalid');
+    });
+
+    $("select[name='expire']").on('change', function () {
+        const val = $(this).val();
+        console.log("Selected", val);
+        if (val === "custom") {
+            $("select[name='expire']").hide();
+            $("input[name='expire-custom']").val(moment().add({{ default_expire.days }}, 'days').format('YYYY-MM-DD')).show();
+        }
+    });
+
+    const delayed_submit = function (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        console.log("user initiated SUBMIT")
+
+        $("input[name='shid']").trigger('blur');
+        $("input[name='url']").trigger('blur');
+
+        window.setTimeout(function () {
+            console.log("Attempting SUBMIT after delay");
+
+            if ($("input[name='shid']").hasClass('is-invalid') ||
+                $("input[name='url']").hasClass('is-invalid')) {
+
+                console.log("No SUBMIT, invalid data");
+                return;
+            }
+
+            console.log("Proceeding with SUBMIT")
+            $.ajax({
+                url: "{{ url_for('ajax_url_add') }}",
+                type: "POST",
+                contentType: 'application/x-www-form-urlencoded',
+                data: $("form#add-url").serialize()
+            }).done(function (data) {
+                console.log("[Submit] Received", data);
+
+                if (data.error)
+                    alert(data.error);
+                else
+                    location.reload();
+            }).fail(function (err) {
+                alert("AJAX failed!!!\n\n" + err.statusText + "\n\n" + err.responseText);
+            });
+
+        }, 100);
+    }
+
+    $("form#add-url > button.btn").on('mousedown', null, null, delayed_submit);
+
+    $("form#add-url").on ('submit', null, null, delayed_submit);
+
+    $("td[data-col='expire'] > span").on('click', function () {
+        const $btn = $("div#ok-cancel-btn");
+
+        if ($btn.is(':visible'))
+            $btn.children("button[data-action='cancel']").trigger('click');
+
+        $(this).hide();
+        const $inp = $(this).next("input");
+        if ($inp.val() === '')
+            $inp.val(moment().add(10, 'years').format('YYYY-MM-DD'));
+        $inp.show();
+
+        $(this).parent().next('td').append($btn);
+        $btn.show();
+    });
+
+    $("div#ok-cancel-btn > button[data-action='ok']").on ('click', function () {
+        const $inp = $(this).closest('td').prev('td').children('input');
+        const expire = $inp.val();
+        const shid = $(this).closest('tr').find("td[data-col='shid'] > A").text();
+
+        console.log("Committing new expire =", expire, "for shid =", shid);
+
+        $.ajax({
+            url: "{{ url_for('ajax_update_expire') }}",
+            type: "POST",
+            contentType: 'application/json',
+            data: JSON.stringify({shid: shid, expire: expire})
+        }).done(function (data) {
+            console.log("[Update expire] Received", data);
+            if (data.error)
+                alert(data.error);
+            else {
+                $(this).closest('td').prev('td').children('span').text(data.expire);
+                $inp.hide();
+                $(this).closest('td').prev('td').children('span').show();
+                $("div#ok-cancel-btn").hide();
+            }
+        }).fail(function (err) {
+            alert("AJAX failed!!!\n\n" + err.statusText + "\n\n" + err.responseText);
+        });
+    });
+
+    $("div#ok-cancel-btn > button[data-action='cancel']").on ('click', function () {
+        $(this).closest('td').prev('td').children('input').hide();
+        $(this).closest('td').prev('td').children('span').show();
+        $("div#ok-cancel-btn").hide();
+    });
+
+    $("input[name='expire-custom']").hide();
+
+    $("td[data-col='expire'] > input").datepicker({
+        format: 'yyyy-mm-dd',
+        todayBtn: true,
+        todayHighlight: true,
+        autoclose: true,
+    });
+});
+
+
+</script>
+{% endblock %}
+
+{% block navbar %}
+{#<button class="btn btn-outline-primary mx-2" type="button">Add URL</button>#}
+{% endblock %}
+
+{% block content %}
+{# https://getbootstrap.com/docs/5.0/content/tables/ #}
+{% set default_expire = namespace(days=183, text="6 months") %}
+
+<div class="table-responsive-lg">
+<table class="table table-responsive-lg urls-list" style="table-layout: fixed; min-width: 520pt">
+<thead>
+    <tr>
+        <th style="width: 75pt;">ID</th>
+        <th style="width: auto;">URL</th>
+        <th style="width: 80pt;">Created</th>
+        <th style="width: 40pt;">Hits</th>
+        <th style="width: 80pt;">Last</th>
+        <th style="width: 100pt;">Expires</th>
+        <th style="width: 60pt;"></th>
+    </tr>
+</thead>
+<tbody>
+{% set ns = namespace(cnt=0) %}
+{% for _r in query.stream() %}
+    {% set ns.cnt = ns.cnt + 1 %}
+    {% set r=_r.to_dict() %}
+    <tr>
+        <td data-col="shid">
+            <A href="{{ url_for('shid_view', shid=_r.id) }}" target="shid">{{ _r.id }}</A>
+        </td>
+        <td>{{ r.url }}</td>
+        <td title="{{ show_time(r.created, 'abs') }}">{{ show_time(r.created, 'diff') }}</td>
+        {% if r.hits > 0 %}
+        <td>{{ r.hits }}</td>
+        <td title="{{ show_time(r.last, 'abs') }}">{{ show_time(r.last, 'diff') }}</td>
+        {% else %}
+        <td colspan="2" style="text-align: center; font-style: italic">No visits</td>
+        {% endif %}
+        <td data-col="expire" title="{{ r.expire or 'never' }}">
+            <span class="db">{{ show_date(r.expire) if r.expire else "Never" }}</span>
+            <input type="text" class="form-control" value="{{ r.expire or ''}}"  style="display: none;">
+        </td>
+        <td data-col="btn">
+            {% if loop.index == 1 %}
+            <div id="ok-cancel-btn" style="display: none;">
+                <button data-action="ok" type="button" class="btn btn-outline-primary btn-sm" style="font-weight: bold">&check;</button>
+                <button data-action="cancel" type="button" class="btn btn-outline-danger btn-sm" style="font-weight: bold">&times;</button>
+            </div>
+            {% endif %}
+        </td>
+    </tr>
+{% endfor %}
+{% if ns.cnt == 0 %}
+    <tr>
+        <td colspan="5" style="text-align: center; font-style: italic">No entries</td>
+    </tr>
+{% endif %}
+{# https://getbootstrap.com/docs/5.0/forms/overview/ #}
+    <tr>
+        <td>
+            <input form="add-url" type="text" name="shid" class="form-control" placeholder="random" {% if not user.priv %}readonly{% endif %}>
+            <div class="valid-feedback">
+                available
+            </div>
+            <div class="invalid-feedback">
+                not available
+            </div>
+        </td>
+        <td colspan="4">
+            <input form="add-url" type="text" name="url" class="form-control" placeholder="https://www.example.com/about">
+            <div class="valid-feedback">
+                valid URL
+            </div>
+            <div class="invalid-feedback">
+                invalid URL
+            </div>
+        </td>
+        <td>
+            <select form="add-url" class="form-control" name="expire">
+                <option value="7">1 week</option>
+                <option value="30">1 month</option>
+                <option selected value="{{ default_expire.days }}">{{ default_expire.text }}</option>
+                <option value="custom">Custom</option>
+                {# Option styles are browser- and OS-dependent #}
+                <option value="never" style="color: lightcoral; font-style: italic">Never</option>
+            </select>
+            <input form="add-url" type="text" name="expire-custom" class="form-control" value="2020-12-31" data-provide="datepicker" data-date-format="yyyy-mm-dd">
+        </td>
+        <td>
+            <form id="add-url" class="mx-2">
+                <button type="button" class="btn btn-outline-primary btn-sm">Add</button>
+                <button type="submit" style="visibility: hidden;">Hidden</button>
+            </form>
+        </td>
+    </tr>
+</tbody>
+</table>
+</div>
+{% endblock %}

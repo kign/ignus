@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Not authorised</title>
+</head>
+<body>
+<p>{{ content|safe }}</p>
+<p><A href="{{ lib.create_logout_url() }}">Logout</A> &#124; <A href="{{ url_for('about') }}">About</A></p>
+</body>
+</html>

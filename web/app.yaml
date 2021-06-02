@@ -1,0 +1,17 @@
+runtime: python37
+service: default
+
+handlers:
+- url: /static
+  static_dir: static
+
+- url: /.*
+  script: auto
+  secure: always
+
+env_variables:
+  GOOGLE_APPLICATION_CREDENTIALS: ign-us-google-app-auth.json
+
+  MS_CLIENT_ID: MS_CLIENT_ID
+  MS_CLIENT_SECRET: MS_CLIENT_SECRET
+  GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID

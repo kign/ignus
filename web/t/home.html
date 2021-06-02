@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html lang="en" translate="no">
+<head>
+    <title>My Application</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon_dbg.png') if lib.is_dev() else url_for('static', filename='favicon.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ 'favicon_dbg.png' if lib.is_dev() else 'favicon.png' }}" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google" content="notranslate">
+    <meta charset="utf-8">
+
+    {# custom styles #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='pro-mgr.css') }}">
+</head>
+<body>
+{% if user %}
+    <p>
+    Logged in as {{ user.email }} &#xFF5C; <a href="{{ lib.create_logout_url() }}">Logout</a>
+    </p>
+{% endif %}
+
+<p>
+    Hello, {{ name }}!
+</p>
+</body>
+</html>
